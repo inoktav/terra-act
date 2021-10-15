@@ -1,5 +1,5 @@
 variable "subdomain" {
-  description = "Jitsi server subdomain"
+  description = "INDOMeet server subdomain"
   type = string
   default = ""
 }
