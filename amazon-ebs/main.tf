@@ -16,8 +16,8 @@ module "dns" {
   public_ip = aws_instance.jitsi.public_ip
   
   has_dedicated_turnserver = var.has_dedicated_turnserver
-  turndomain = var.has_dedicated_turnserver ? "turn.${module.subdomain.value}" : ""
-  turnserver_ip = var.has_dedicated_turnserver ? join("", module.turnserver.*.public_ip) : ""
+  turndomain = length(var.turndomain) == 0 ? "turn-${module.subdomain.value}" : var.turndomain
+  turnserver_ip = var.has_dedicated_turnserver ? join("", module.turnserver.*.public_ip) : aws_instance.jitsi.public_ip
 }
 
 module "security" {
@@ -60,11 +60,12 @@ module "jitsi" {
   admin_password = var.admin_password
   email_address = var.email_address
   host_ip = aws_instance.jitsi.public_ip
+  private_ip = aws_instance.jitsi.private_ip
   ssh_key_path = var.ssh_key_path
   enable_recording_streaming = var.enable_recording_streaming
   has_dedicated_turnserver = var.has_dedicated_turnserver
   turn_secret = module.secrets.turn_secret
-  turndomain = var.has_dedicated_turnserver ? module.dns.turnfqdn : ""
+  turndomain = module.dns.turnfqdn
   is_secure_domain = var.is_secure_domain
   interface_background_color = var.interface_background_color
   interface_remote_display_name = var.interface_remote_display_name
@@ -72,6 +73,12 @@ module "jitsi" {
   interface_app_name = var.interface_app_name
   interface_provider_name = var.interface_provider_name
   interface_watermark_image_url = var.interface_watermark_image_url
+  interface_show_watermark = var.interface_show_watermark
+  interface_allow_shared_video = var.interface_allow_shared_video
+  interface_disable_mobile_app = var.interface_disable_mobile_app
+}
+
+data "aws_caller_identity" "current_user" {
 }
 
 data "aws_ami" "packer_jitsi" {
@@ -86,7 +93,19 @@ data "aws_ami" "packer_jitsi" {
     values = ["hvm"]
   }
 
-  owners = ["610596688011"]
+  owners = [data.aws_caller_identity.current_user.account_id]
+
+#  filter {
+#    name   = "name"
+#    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+#  }
+#  filter {
+#    name   = "virtualization-type"
+#    values = ["hvm"]
+#  }
+#
+#  owners = ["099720109477"]
+
 }
 
 resource "aws_instance" "jitsi" {

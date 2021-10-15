@@ -1,5 +1,10 @@
 variable "subdomain" {
-  description = "(Optional) Subdomain at which a Jitsi server will be hosted"
+  description = "Base subdomain at which a Jitsi servers will be hosted"
+  type = string
+}
+
+variable "turndomain" {
+  description = "Base TURN domain at which TURN servers will be available"
   type = string
 }
 
@@ -14,26 +19,8 @@ variable "cloudflare_zone_id" {
   type        = string
 }
 
-variable "jitsi_public_ip" {
-  description = "Public IP of Jitsi server"
-  type        = string
-}
-
-variable "jitsi_private_ip" {
-  description = "Private IP of Jitsi Server. Required for TURN configuration."
-  type = string
-}
-
-variable "turn_public_ip" {
-  description = "(Optional) Public IP of TURN Server. Required if turn_domain is set."
-  type = string
-  default = ""
-}
-
-variable "turndomain" {
-  description = "(Optional) Public IP of TURN Server."
-  type = string
-  default = "turn"
+variable "servers" {
+  type = map
 }
 
 variable "ssh_key_path" {
@@ -49,11 +36,13 @@ variable "email_address" {
 variable "admin_username" {
   description = "Moderator username. Only this user will be allowed to start meets."
   type        = string
+  default = ""
 }
 
 variable "admin_password" {
   description = "Password for moderator user. Only this user will be allowed to start meets."
   type        = string
+  default = ""
 }
 
 variable "enable_recording_streaming" {
@@ -94,7 +83,7 @@ variable "additional_turn_private_ip" {
 variable "is_secure_domain" {
   description = "Enable/disable secure domain"
   type = bool
-  default = true
+  default = false
 }
 
 variable "interface_background_color" {
